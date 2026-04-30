@@ -1,0 +1,1251 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap');
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body-game {
+    display: block;
+  }
+  
+  #game-root {
+    font-family: 'Nunito', sans-serif;
+    background: #f0f4ff;
+    min-height: 100vh;
+    padding: 0;
+  }
+  
+  .game-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    text-align: center;
+    padding: 18px 12px 14px;
+    position: relative;
+  }
+  
+  .game-header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: #7ef4ff;
+  }
+  
+  .game-header p {
+    font-size: 13px;
+    color: #aaccff;
+    margin-top: 4px;
+  }
+  
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    height: 10px;
+    width: 80%;
+    margin: 10px auto 0;
+    overflow: hidden;
+  }
+  
+  .progress-bar-fill {
+    height: 100%;
+    background: #7ef4ff;
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  
+  .progress-label {
+    font-size: 12px;
+    color: #aaccff;
+    margin-top: 4px;
+    text-align: center;
+  }
+  
+  .main-layout {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    max-width: 900px;
+    margin: 0 auto;
+    align-items: flex-start;
+  }
+  
+  .pc-zone {
+    flex: 1;
+    min-width: 280px;
+  }
+  
+  .pc-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    color: #1a1a2e;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  
+  .pc-canvas {
+    background: white;
+    border-radius: 16px;
+    border: 3px dashed #aab4ff;
+    padding: 10px;
+    min-height: 480px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .pc-canvas.has-gabinete {
+    border-style: solid;
+    border-color: #4a90d9;
+  }
+  
+  .slot {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #aab4ff;
+    border: 2px dashed #dde3ff;
+    background: rgba(240,244,255,0.6);
+    transition: all 0.3s;
+    flex-direction: column;
+    text-align: center;
+    gap: 2px;
+  }
+  
+  .slot.filled {
+    border: 2px solid #4cd97b;
+    background: rgba(76,217,123,0.08);
+    color: transparent;
+  }
+  
+  .slot.highlight {
+    border-color: #7ef4ff;
+    background: rgba(126,244,255,0.15);
+    animation: pulse-slot 0.8s infinite alternate;
+  }
+  
+  @keyframes pulse-slot {
+    from { box-shadow: 0 0 0 0 rgba(126,244,255,0.4); }
+    to { box-shadow: 0 0 0 6px rgba(126,244,255,0); }
+  }
+  
+  .slot svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  .right-panel {
+    width: 290px;
+    flex-shrink: 0;
+  }
+  
+  .category-section {
+    background: white;
+    border-radius: 14px;
+    padding: 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  
+  .cat-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .cat-title .cat-icon {
+    font-size: 14px;
+  }
+  
+  .components-grid {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  
+  .component-card {
+    width: 82px;
+    background: #f5f7ff;
+    border-radius: 10px;
+    border: 2px solid #dde3ff;
+    padding: 6px 4px;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    user-select: none;
+    font-size: 10px;
+    font-weight: 700;
+    color: #4a4a6a;
+    text-align: center;
+  }
+  
+  .component-card:hover:not(.used) {
+    border-color: #7a8aff;
+    background: #eef0ff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(122,138,255,0.25);
+  }
+  
+  .component-card.used {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-color: #4cd97b;
+  }
+  
+  .component-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  
+  .component-card svg {
+    display: block;
+  }
+  
+  .success-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #4cd97b;
+    color: white;
+    font-family: 'Fredoka One', cursive;
+    font-size: 10px;
+    border-radius: 20px;
+    padding: 2px 8px;
+    display: none;
+  }
+  
+  .slot.filled .success-badge { display: block; }
+  
+  .completion-banner {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10,15,40,0.85);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  
+  .completion-banner.show {
+    display: flex;
+  }
+  
+  .banner-box {
+    background: white;
+    border-radius: 24px;
+    padding: 32px 40px;
+    text-align: center;
+    max-width: 380px;
+  }
+  
+  .banner-box h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 28px;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+  }
+  
+  .banner-box p {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .btn-restart {
+    background: #1a1a2e;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 28px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-restart:hover {
+    background: #3a3a6e;
+    transform: scale(1.05);
+  }
+  
+  .star-anim {
+    font-size: 48px;
+    animation: bounce-star 0.6s ease infinite alternate;
+    display: block;
+    margin-bottom: 12px;
+  }
+  
+  @keyframes bounce-star {
+    from { transform: scale(1); }
+    to { transform: scale(1.2) rotate(10deg); }
+  }
+  
+  .info-bar {
+    background: #1a1a2e;
+    color: #7ef4ff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 12px;
+    text-align: center;
+    padding: 6px;
+    letter-spacing: 0.5px;
+  }
+  
+  .placed-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+  
+  .gabinete-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+  }
+  
+  .needs-gabinete-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #aab4ff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 14px;
+    pointer-events: none;
+  }
+  
+  .needs-gabinete-msg span {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .cat-done {
+    color: #4cd97b !important;
+  }
+
+  .drop-target-active {
+    border-color: #7ef4ff !important;
+    background: rgba(126,244,255,0.12) !important;
+  }
+</style>
+
+<div id="game-root">
+  <div class="game-header">
+    <h1>🖥️ ARMÁ TU COMPUTADORA</h1>
+    <p>Arrastrá cada componente hacia la computadora</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prog-fill"></div>
+    </div>
+    <div class="progress-label" id="prog-label">0 / 13 componentes</div>
+  </div>
+  <div class="info-bar" id="status-bar">¡Empezá colocando el gabinete!</div>
+  
+  <div class="main-layout">
+    <div class="pc-zone">
+      <div class="pc-title">🖥️ Tu Computadora</div>
+      <div class="pc-canvas" id="pc-canvas">
+        <div class="needs-gabinete-msg" id="no-gabinete-msg">
+          <span>📦</span>
+          Primero colocá<br>el gabinete
+        </div>
+      </div>
+    </div>
+    
+    <div class="right-panel" id="components-panel">
+    </div>
+  </div>
+</div>
+
+<div class="completion-banner" id="completion-banner">
+  <div class="banner-box">
+    <span class="star-anim">🎉</span>
+    <h2>¡Computadora armada!</h2>
+    <p>¡Excelente trabajo! Conocés todos los componentes de una computadora. ¡Sos un/a experto/a en tecnología!</p>
+    <button class="btn-restart" onclick="restartGame()">JUGAR DE NUEVO</button>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = [
+  {
+    id: 'gabinete',
+    label: '📦 Gabinete',
+    icon: '📦',
+    requiredFirst: true,
+    slot: { x: 5, y: 5, w: 90, h: 88, label: 'GABINETE' },
+    internalSlot: true,
+    components: [
+      { id: 'gab_oficina', name: 'Gabinete Oficina', color: '#b0bec5',
+        svg: `<svg viewBox="0 0 60 90" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="50" height="80" rx="4" fill="#cfd8dc" stroke="#90a4ae" stroke-width="2"/>
+          <rect x="10" y="10" width="40" height="20" rx="2" fill="#b0bec5"/>
+          <rect x="10" y="35" width="40" height="35" rx="2" fill="#b0bec5"/>
+          <circle cx="30" cy="75" r="4" fill="#78909c"/>
+          <rect x="22" y="14" width="16" height="3" rx="1" fill="#78909c"/>
+          <rect x="22" y="19" width="10" height="2" rx="1" fill="#90a4ae"/>
+          <circle cx="45" cy="16" r="3" fill="#4dd0e1"/>
+        </svg>` },
+      { id: 'gab_gamer1', name: 'Gabinete Gamer RGB', color: '#e53935',
+        svg: `<svg viewBox="0 0 60 90" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="54" height="84" rx="6" fill="#212121" stroke="#e53935" stroke-width="2"/>
+          <rect x="8" y="8" width="30" height="40" rx="2" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+          <rect x="9" y="9" width="28" height="38" rx="1" fill="rgba(255,50,50,0.08)"/>
+          <polygon points="40,8 54,8 54,25 40,25" fill="#1a1a1a"/>
+          <circle cx="47" cy="16" r="5" fill="rgba(255,80,0,0.3)" stroke="#ff5722" stroke-width="1"/>
+          <circle cx="47" cy="16" r="2" fill="#ff5722"/>
+          <rect x="5" y="55" width="50" height="3" rx="1" fill="#e53935"/>
+          <rect x="5" y="62" width="30" height="2" rx="1" fill="#ff5722"/>
+          <rect x="40" y="60" width="14" height="14" rx="2" fill="#111" stroke="#e53935" stroke-width="1"/>
+          <line x1="43" y1="63" x2="51" y2="71" stroke="#e53935" stroke-width="1"/>
+          <line x1="43" y1="71" x2="51" y2="63" stroke="#e53935" stroke-width="1"/>
+          <rect x="3" y="3" width="6" height="84" rx="3" fill="#c62828" opacity="0.5"/>
+        </svg>` },
+      { id: 'gab_gamer2', name: 'Gabinete Gamer Pro', color: '#7c4dff',
+        svg: `<svg viewBox="0 0 60 90" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="56" height="86" rx="8" fill="#0d0d1a" stroke="#7c4dff" stroke-width="2"/>
+          <rect x="8" y="8" width="34" height="50" rx="3" fill="#0a0a14" stroke="#7c4dff" stroke-width="1" opacity="0.6"/>
+          <rect x="9" y="9" width="32" height="48" rx="2" fill="rgba(124,77,255,0.07)"/>
+          <path d="M8 8 L20 8 L16 18 L8 18 Z" fill="rgba(124,77,255,0.3)"/>
+          <rect x="44" y="8" width="12" height="50" rx="3" fill="#0a0a14" stroke="#333" stroke-width="1"/>
+          <rect x="46" y="12" width="8" height="3" rx="1" fill="#7c4dff" opacity="0.7"/>
+          <rect x="46" y="18" width="8" height="3" rx="1" fill="#7c4dff" opacity="0.5"/>
+          <rect x="46" y="24" width="8" height="3" rx="1" fill="#7c4dff" opacity="0.3"/>
+          <rect x="5" y="62" width="50" height="2" rx="1" fill="#7c4dff"/>
+          <rect x="5" y="66" width="35" height="2" rx="1" fill="#7c4dff" opacity="0.5"/>
+          <circle cx="46" cy="73" r="4" fill="#7c4dff"/>
+          <circle cx="54" cy="73" r="3" fill="#0d0d1a" stroke="#7c4dff" stroke-width="1"/>
+          <rect x="2" y="2" width="4" height="86" rx="4" fill="rgba(124,77,255,0.4)"/>
+          <rect x="54" y="2" width="4" height="86" rx="4" fill="rgba(124,77,255,0.2)"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'mother',
+    label: '🟢 Motherboard',
+    icon: '🟢',
+    slot: { x: 8, y: 10, w: 52, h: 42, label: 'MOTHER' },
+    components: [
+      { id: 'mother1', name: 'Motherboard ATX', color: '#388e3c',
+        svg: `<svg viewBox="0 0 60 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="56" height="46" rx="3" fill="#1b5e20" stroke="#4caf50" stroke-width="1.5"/>
+          <rect x="6" y="6" width="20" height="15" rx="2" fill="#2e7d32" stroke="#66bb6a" stroke-width="0.5"/>
+          <rect x="28" y="6" width="14" height="8" rx="1" fill="#1a3a1a" stroke="#4caf50" stroke-width="0.5"/>
+          <rect x="6" y="24" width="50" height="6" rx="1" fill="#2e7d32" stroke="#4caf50" stroke-width="0.5"/>
+          <rect x="6" y="32" width="50" height="6" rx="1" fill="#2e7d32" stroke="#4caf50" stroke-width="0.5"/>
+          <rect x="44" y="6" width="12" height="35" rx="1" fill="#1a3a1a" stroke="#4caf50" stroke-width="0.5"/>
+          <circle cx="16" cy="13" r="3" fill="#2196f3" stroke="#1565c0" stroke-width="0.5"/>
+          <rect x="8" y="8" width="16" height="10" rx="1" fill="rgba(0,0,0,0.3)"/>
+        </svg>` },
+      { id: 'mother2', name: 'Motherboard Gaming', color: '#b71c1c',
+        svg: `<svg viewBox="0 0 60 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="56" height="46" rx="3" fill="#0d0d0d" stroke="#f44336" stroke-width="1.5"/>
+          <rect x="6" y="5" width="22" height="16" rx="2" fill="#1a0000" stroke="#f44336" stroke-width="0.5"/>
+          <rect x="30" y="5" width="12" height="10" rx="1" fill="#0d0d0d" stroke="#f44336" stroke-width="0.5"/>
+          <rect x="6" y="24" width="48" height="6" rx="1" fill="#1a0000" stroke="#f44336" stroke-width="0.5"/>
+          <rect x="6" y="33" width="48" height="6" rx="1" fill="#1a0000" stroke="#f44336" stroke-width="0.5"/>
+          <rect x="44" y="5" width="12" height="38" rx="1" fill="#0d0d0d" stroke="#f44336" stroke-width="0.5"/>
+          <rect x="2" y="2" width="56" height="2" rx="1" fill="#f44336" opacity="0.6"/>
+          <rect x="2" y="46" width="56" height="2" rx="1" fill="#f44336" opacity="0.6"/>
+          <circle cx="16" cy="13" r="3" fill="#f44336" opacity="0.8"/>
+          <path d="M6 42 L12 42 L9 46 Z" fill="#f44336" opacity="0.5"/>
+        </svg>` },
+      { id: 'mother3', name: 'Motherboard Mini', color: '#0277bd',
+        svg: `<svg viewBox="0 0 60 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="2" width="48" height="46" rx="3" fill="#003366" stroke="#0288d1" stroke-width="1.5"/>
+          <rect x="10" y="6" width="18" height="14" rx="2" fill="#012244" stroke="#039be5" stroke-width="0.5"/>
+          <rect x="30" y="6" width="10" height="8" rx="1" fill="#012244" stroke="#0288d1" stroke-width="0.5"/>
+          <rect x="10" y="23" width="42" height="5" rx="1" fill="#012244" stroke="#0288d1" stroke-width="0.5"/>
+          <rect x="10" y="31" width="42" height="5" rx="1" fill="#012244" stroke="#0288d1" stroke-width="0.5"/>
+          <rect x="42" y="6" width="10" height="32" rx="1" fill="#012244" stroke="#0288d1" stroke-width="0.5"/>
+          <circle cx="14" cy="12" r="3" fill="#29b6f6"/>
+          <circle cx="50" cy="40" r="2" fill="#039be5"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'procesador',
+    label: '⚡ Procesador (CPU)',
+    icon: '⚡',
+    slot: { x: 10, y: 15, w: 18, h: 14, label: 'CPU' },
+    components: [
+      { id: 'cpu_amd', name: 'AMD Ryzen', color: '#e65100',
+        svg: `<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="8" width="34" height="34" rx="3" fill="#1a0a00" stroke="#ed6c02" stroke-width="2"/>
+          <rect x="13" y="13" width="24" height="24" rx="2" fill="#0d0500" stroke="#ff8c00" stroke-width="1"/>
+          <rect x="16" y="16" width="18" height="18" rx="1" fill="#200a00"/>
+          <text x="25" y="27" text-anchor="middle" font-family="Arial Black" font-size="7" fill="#ed6c02" font-weight="bold">AMD</text>
+          <text x="25" y="33" text-anchor="middle" font-family="Arial" font-size="4" fill="#ff8c00">Ryzen</text>
+          <rect x="4" y="11" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="15" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="19" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="23" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="27" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="31" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="11" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="15" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="19" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="23" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="27" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="31" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="11" y="4" width="2" height="4" rx="1" fill="#555"/>
+          <rect x="15" y="4" width="2" height="4" rx="1" fill="#555"/>
+          <rect x="19" y="4" width="2" height="4" rx="1" fill="#555"/>
+          <rect x="23" y="4" width="2" height="4" rx="1" fill="#555"/>
+          <rect x="27" y="4" width="2" height="4" rx="1" fill="#555"/>
+          <rect x="31" y="4" width="2" height="4" rx="1" fill="#555"/>
+          <rect x="35" y="4" width="2" height="4" rx="1" fill="#555"/>
+        </svg>` },
+      { id: 'cpu_intel', name: 'Intel Core i9', color: '#0071c5',
+        svg: `<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="8" width="34" height="34" rx="3" fill="#001a33" stroke="#0288d1" stroke-width="2"/>
+          <rect x="13" y="13" width="24" height="24" rx="2" fill="#00111f" stroke="#0071c5" stroke-width="1"/>
+          <rect x="16" y="16" width="18" height="18" rx="1" fill="#001628"/>
+          <text x="25" y="26" text-anchor="middle" font-family="Arial Black" font-size="6" fill="#0288d1" font-weight="bold">intel</text>
+          <text x="25" y="32" text-anchor="middle" font-family="Arial" font-size="4" fill="#29b6f6">Core i9</text>
+          <rect x="4" y="11" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="4" y="15" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="4" y="19" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="4" y="23" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="4" y="27" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="4" y="31" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="42" y="11" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="42" y="15" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="42" y="19" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="42" y="23" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="42" y="27" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="42" y="31" width="4" height="2" rx="1" fill="#444"/>
+          <rect x="11" y="4" width="2" height="4" rx="1" fill="#444"/>
+          <rect x="15" y="4" width="2" height="4" rx="1" fill="#444"/>
+          <rect x="19" y="4" width="2" height="4" rx="1" fill="#444"/>
+          <rect x="23" y="4" width="2" height="4" rx="1" fill="#444"/>
+          <rect x="27" y="4" width="2" height="4" rx="1" fill="#444"/>
+          <rect x="31" y="4" width="2" height="4" rx="1" fill="#444"/>
+          <rect x="35" y="4" width="2" height="4" rx="1" fill="#444"/>
+        </svg>` },
+      { id: 'cpu_apple', name: 'ARM (Snapdragon)', color: '#6a1b9a',
+        svg: `<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="8" width="34" height="34" rx="5" fill="#1a0033" stroke="#9c27b0" stroke-width="2"/>
+          <rect x="13" y="13" width="24" height="24" rx="3" fill="#12002a" stroke="#7b1fa2" stroke-width="1"/>
+          <rect x="16" y="16" width="18" height="18" rx="2" fill="#0d0020"/>
+          <text x="25" y="26" text-anchor="middle" font-family="Arial Black" font-size="4.5" fill="#ce93d8" font-weight="bold">ARM</text>
+          <text x="25" y="32" text-anchor="middle" font-family="Arial" font-size="3.5" fill="#9c27b0">Snapdragon</text>
+          <rect x="4" y="11" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="15" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="19" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="23" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="27" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="4" y="31" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="11" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="15" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="19" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="23" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="27" width="4" height="2" rx="1" fill="#555"/>
+          <rect x="42" y="31" width="4" height="2" rx="1" fill="#555"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'ram',
+    label: '🔵 Memoria RAM',
+    icon: '🔵',
+    slot: { x: 30, y: 15, w: 10, h: 24, label: 'RAM' },
+    components: [
+      { id: 'ram_8', name: 'RAM 8GB DDR4', color: '#00695c',
+        svg: `<svg viewBox="0 0 30 70" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="2" width="22" height="62" rx="2" fill="#004d40" stroke="#26a69a" stroke-width="1.5"/>
+          <rect x="4" y="58" width="22" height="6" rx="1" fill="#003330"/>
+          <rect x="6" y="4" width="18" height="10" rx="1" fill="#00695c"/>
+          <rect x="6" y="16" width="18" height="8" rx="1" fill="#00695c" opacity="0.6"/>
+          <rect x="6" y="26" width="18" height="8" rx="1" fill="#00695c" opacity="0.6"/>
+          <rect x="6" y="36" width="18" height="8" rx="1" fill="#00695c" opacity="0.6"/>
+          <rect x="6" y="46" width="18" height="10" rx="1" fill="#00695c"/>
+          <rect x="5" y="58" width="2" height="6" fill="#222"/>
+          <rect x="9" y="58" width="2" height="6" fill="#222"/>
+          <rect x="13" y="58" width="2" height="6" fill="#222"/>
+          <rect x="17" y="58" width="2" height="6" fill="#222"/>
+          <rect x="21" y="58" width="2" height="6" fill="#222"/>
+          <text x="15" y="12" text-anchor="middle" font-size="4" fill="#80cbc4" font-family="Arial" font-weight="bold">8GB</text>
+          <text x="15" y="16.5" text-anchor="middle" font-size="3" fill="#4db6ac" font-family="Arial">DDR4</text>
+        </svg>` },
+      { id: 'ram_16', name: 'RAM 16GB DDR5', color: '#1565c0',
+        svg: `<svg viewBox="0 0 30 70" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="2" width="22" height="62" rx="2" fill="#0d47a1" stroke="#42a5f5" stroke-width="1.5"/>
+          <rect x="4" y="58" width="22" height="6" rx="1" fill="#0a2f6b"/>
+          <rect x="6" y="4" width="18" height="10" rx="1" fill="#1565c0"/>
+          <rect x="6" y="16" width="18" height="8" rx="1" fill="#1565c0" opacity="0.6"/>
+          <rect x="6" y="26" width="18" height="8" rx="1" fill="#1565c0" opacity="0.6"/>
+          <rect x="6" y="36" width="18" height="8" rx="1" fill="#1565c0" opacity="0.6"/>
+          <rect x="6" y="46" width="18" height="10" rx="1" fill="#1565c0"/>
+          <rect x="2" y="4" width="2" height="52" rx="1" fill="#42a5f5" opacity="0.4"/>
+          <rect x="5" y="58" width="2" height="6" fill="#111"/>
+          <rect x="9" y="58" width="2" height="6" fill="#111"/>
+          <rect x="13" y="58" width="2" height="6" fill="#111"/>
+          <rect x="17" y="58" width="2" height="6" fill="#111"/>
+          <rect x="21" y="58" width="2" height="6" fill="#111"/>
+          <text x="15" y="12" text-anchor="middle" font-size="3.5" fill="#90caf9" font-family="Arial" font-weight="bold">16GB</text>
+          <text x="15" y="16.5" text-anchor="middle" font-size="3" fill="#64b5f6" font-family="Arial">DDR5</text>
+        </svg>` },
+      { id: 'ram_32', name: 'RAM 32GB RGB', color: '#880e4f',
+        svg: `<svg viewBox="0 0 30 70" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="2" width="22" height="62" rx="2" fill="#1a0010" stroke="#e91e63" stroke-width="1.5"/>
+          <rect x="4" y="58" width="22" height="6" rx="1" fill="#0d0008"/>
+          <rect x="4" y="2" width="22" height="6" rx="2" fill="#e91e63" opacity="0.7"/>
+          <rect x="6" y="10" width="18" height="8" rx="1" fill="#2d0020" opacity="0.8"/>
+          <rect x="6" y="20" width="18" height="8" rx="1" fill="#2d0020" opacity="0.8"/>
+          <rect x="6" y="30" width="18" height="8" rx="1" fill="#2d0020" opacity="0.8"/>
+          <rect x="6" y="40" width="18" height="16" rx="1" fill="#2d0020"/>
+          <rect x="5" y="58" width="2" height="6" fill="#111"/>
+          <rect x="9" y="58" width="2" height="6" fill="#111"/>
+          <rect x="13" y="58" width="2" height="6" fill="#111"/>
+          <rect x="17" y="58" width="2" height="6" fill="#111"/>
+          <rect x="21" y="58" width="2" height="6" fill="#111"/>
+          <text x="15" y="8" text-anchor="middle" font-size="3" fill="#f48fb1" font-family="Arial" font-weight="bold">32GB</text>
+          <text x="15" y="11.5" text-anchor="middle" font-size="2.5" fill="#f06292" font-family="Arial">RGB</text>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'almacenamiento',
+    label: '💾 Almacenamiento',
+    icon: '💾',
+    slot: { x: 43, y: 20, w: 18, h: 16, label: 'SSD/HDD' },
+    components: [
+      { id: 'hdd', name: 'HDD 1TB', color: '#37474f',
+        svg: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="54" height="34" rx="4" fill="#263238" stroke="#607d8b" stroke-width="2"/>
+          <circle cx="42" cy="20" r="12" fill="#1c2a31" stroke="#455a64" stroke-width="1"/>
+          <circle cx="42" cy="20" r="6" fill="#37474f" stroke="#607d8b" stroke-width="0.5"/>
+          <circle cx="42" cy="20" r="2" fill="#78909c"/>
+          <rect x="6" y="7" width="28" height="4" rx="1" fill="#37474f"/>
+          <rect x="6" y="14" width="24" height="3" rx="1" fill="#37474f"/>
+          <rect x="6" y="20" width="26" height="3" rx="1" fill="#37474f"/>
+          <rect x="6" y="27" width="20" height="3" rx="1" fill="#37474f"/>
+          <text x="18" y="11" text-anchor="middle" font-size="5" fill="#90a4ae" font-family="Arial" font-weight="bold">HDD</text>
+          <text x="14" y="17" text-anchor="middle" font-size="4" fill="#78909c" font-family="Arial">1 TB</text>
+        </svg>` },
+      { id: 'ssd_sata', name: 'SSD SATA 500GB', color: '#1a237e',
+        svg: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="54" height="34" rx="4" fill="#0d0d2b" stroke="#3f51b5" stroke-width="2"/>
+          <rect x="6" y="6" width="48" height="28" rx="2" fill="#0a0a1f" stroke="#283593" stroke-width="1"/>
+          <rect x="8" y="8" width="28" height="12" rx="1" fill="#1a1a3a"/>
+          <rect x="38" y="8" width="14" height="12" rx="1" fill="#1a1a3a"/>
+          <rect x="8" y="22" width="44" height="8" rx="1" fill="#1a1a3a"/>
+          <rect x="44" y="22" width="4" height="8" fill="#3f51b5" opacity="0.3"/>
+          <rect x="50" y="22" width="2" height="8" fill="#3f51b5" opacity="0.5"/>
+          <text x="22" y="16" text-anchor="middle" font-size="5.5" fill="#5c6bc0" font-family="Arial" font-weight="bold">SSD</text>
+          <text x="22" y="21" text-anchor="middle" font-size="3.5" fill="#3f51b5" font-family="Arial">500 GB SATA</text>
+          <rect x="10" y="24" width="6" height="4" rx="1" fill="#3f51b5"/>
+          <rect x="18" y="24" width="6" height="4" rx="1" fill="#3f51b5" opacity="0.7"/>
+          <rect x="26" y="24" width="6" height="4" rx="1" fill="#3f51b5" opacity="0.5"/>
+        </svg>` },
+      { id: 'ssd_nvme', name: 'SSD NVMe M.2', color: '#4a148c',
+        svg: `<svg viewBox="0 0 60 20" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="58" height="18" rx="3" fill="#12005e" stroke="#7b1fa2" stroke-width="1.5"/>
+          <rect x="3" y="3" width="14" height="14" rx="2" fill="#1a0080" stroke="#9c27b0" stroke-width="0.5"/>
+          <rect x="19" y="3" width="10" height="14" rx="1" fill="#1a0080"/>
+          <rect x="31" y="3" width="10" height="14" rx="1" fill="#1a0080"/>
+          <rect x="43" y="3" width="8" height="14" rx="1" fill="#1a0080"/>
+          <rect x="3" y="17" width="50" height="2" rx="1" fill="#7b1fa2" opacity="0.5"/>
+          <text x="8.5" y="12" text-anchor="middle" font-size="4" fill="#ce93d8" font-family="Arial" font-weight="bold">NVMe</text>
+          <text x="24" y="10" text-anchor="middle" font-size="3.5" fill="#9c27b0" font-family="Arial">M.2</text>
+          <text x="24" y="14" text-anchor="middle" font-size="3" fill="#7b1fa2" font-family="Arial">1TB</text>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'fuente',
+    label: '🔋 Fuente de Poder',
+    icon: '🔋',
+    slot: { x: 43, y: 38, w: 18, h: 20, label: 'FUENTE' },
+    components: [
+      { id: 'fuente_500', name: 'Fuente 500W', color: '#4e342e',
+        svg: `<svg viewBox="0 0 55 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="49" height="44" rx="4" fill="#212121" stroke="#5d4037" stroke-width="2"/>
+          <circle cx="38" cy="24" r="14" fill="#161616" stroke="#4e342e" stroke-width="1.5"/>
+          <circle cx="38" cy="24" r="10" fill="#1a1a1a"/>
+          <path d="M34 20 L42 20 L38 16 Z" fill="#5d4037"/>
+          <path d="M34 28 L42 28 L38 32 Z" fill="#5d4037"/>
+          <line x1="28" y1="24" x2="48" y2="24" stroke="#4e342e" stroke-width="1.5"/>
+          <rect x="6" y="6" width="24" height="6" rx="1" fill="#2d2d2d"/>
+          <rect x="6" y="14" width="20" height="4" rx="1" fill="#2d2d2d"/>
+          <rect x="6" y="20" width="16" height="3" rx="1" fill="#2d2d2d"/>
+          <text x="18" y="12" text-anchor="middle" font-size="4.5" fill="#8d6e63" font-family="Arial" font-weight="bold">500W</text>
+          <rect x="6" y="36" width="22" height="8" rx="2" fill="#2d2d2d" stroke="#4e342e" stroke-width="0.5"/>
+          <rect x="7" y="37" width="3" height="6" rx="0.5" fill="#c62828"/>
+          <rect x="11" y="37" width="3" height="6" rx="0.5" fill="#fdd835"/>
+          <rect x="15" y="37" width="3" height="6" rx="0.5" fill="#212121"/>
+          <rect x="19" y="37" width="3" height="6" rx="0.5" fill="#212121"/>
+          <rect x="23" y="37" width="3" height="6" rx="0.5" fill="#212121"/>
+        </svg>` },
+      { id: 'fuente_750', name: 'Fuente 750W 80+', color: '#b71c1c',
+        svg: `<svg viewBox="0 0 55 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="49" height="44" rx="4" fill="#1a0000" stroke="#e53935" stroke-width="2"/>
+          <circle cx="38" cy="24" r="14" fill="#0d0000" stroke="#b71c1c" stroke-width="1.5"/>
+          <circle cx="38" cy="24" r="10" fill="#110000"/>
+          <path d="M34 20 L42 20 L38 16 Z" fill="#e53935"/>
+          <path d="M34 28 L42 28 L38 32 Z" fill="#e53935"/>
+          <line x1="28" y1="24" x2="48" y2="24" stroke="#b71c1c" stroke-width="1.5"/>
+          <rect x="6" y="6" width="24" height="6" rx="1" fill="#1f0000"/>
+          <rect x="6" y="14" width="20" height="4" rx="1" fill="#1f0000"/>
+          <text x="18" y="12" text-anchor="middle" font-size="4.5" fill="#ef9a9a" font-family="Arial" font-weight="bold">750W</text>
+          <text x="18" y="18" text-anchor="middle" font-size="3" fill="#e53935" font-family="Arial">80+ GOLD</text>
+          <rect x="3" y="3" width="49" height="2" rx="1" fill="#e53935" opacity="0.5"/>
+          <rect x="6" y="36" width="22" height="8" rx="2" fill="#1f0000" stroke="#e53935" stroke-width="0.5"/>
+          <rect x="7" y="37" width="3" height="6" rx="0.5" fill="#c62828"/>
+          <rect x="11" y="37" width="3" height="6" rx="0.5" fill="#fdd835"/>
+          <rect x="15" y="37" width="3" height="6" rx="0.5" fill="#0d0000"/>
+          <rect x="19" y="37" width="3" height="6" rx="0.5" fill="#0d0000"/>
+          <rect x="23" y="37" width="3" height="6" rx="0.5" fill="#0d0000"/>
+        </svg>` },
+      { id: 'fuente_modular', name: 'Fuente Modular', color: '#1a237e',
+        svg: `<svg viewBox="0 0 55 50" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="49" height="44" rx="4" fill="#0a0a1f" stroke="#1a237e" stroke-width="2"/>
+          <circle cx="38" cy="24" r="14" fill="#060612" stroke="#1a237e" stroke-width="1.5"/>
+          <circle cx="38" cy="24" r="10" fill="#08080f"/>
+          <path d="M34 20 L42 20 L38 16 Z" fill="#3f51b5"/>
+          <path d="M34 28 L42 28 L38 32 Z" fill="#3f51b5"/>
+          <line x1="28" y1="24" x2="48" y2="24" stroke="#1a237e" stroke-width="1.5"/>
+          <rect x="6" y="6" width="24" height="6" rx="1" fill="#0f0f2f"/>
+          <text x="18" y="12" text-anchor="middle" font-size="4.5" fill="#7986cb" font-family="Arial" font-weight="bold">850W</text>
+          <text x="18" y="18" text-anchor="middle" font-size="3" fill="#3f51b5" font-family="Arial">MODULAR</text>
+          <rect x="6" y="36" width="6" height="8" rx="2" fill="#0f0f2f" stroke="#1a237e" stroke-width="0.5"/>
+          <rect x="14" y="36" width="6" height="8" rx="2" fill="#0f0f2f" stroke="#1a237e" stroke-width="0.5"/>
+          <rect x="22" y="36" width="6" height="8" rx="2" fill="#0f0f2f" stroke="#1a237e" stroke-width="0.5"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'ventilacion',
+    label: '🌀 Ventilación (Cooler)',
+    icon: '🌀',
+    slot: { x: 8, y: 55, w: 32, h: 24, label: 'COOLER' },
+    components: [
+      { id: 'fan_stock', name: 'Cooler Stock', color: '#546e7a',
+        svg: `<svg viewBox="0 0 55 55" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="45" height="45" rx="4" fill="#263238" stroke="#607d8b" stroke-width="1.5"/>
+          <circle cx="27" cy="27" r="18" fill="#1c2a31" stroke="#455a64" stroke-width="1"/>
+          <circle cx="27" cy="27" r="4" fill="#37474f"/>
+          <path d="M27 9 Q35 18 27 23 Q19 18 27 9 Z" fill="#546e7a" opacity="0.85"/>
+          <path d="M45 27 Q36 35 31 27 Q36 19 45 27 Z" fill="#546e7a" opacity="0.85"/>
+          <path d="M27 45 Q19 36 27 31 Q35 36 27 45 Z" fill="#546e7a" opacity="0.85"/>
+          <path d="M9 27 Q18 19 23 27 Q18 35 9 27 Z" fill="#546e7a" opacity="0.85"/>
+          <circle cx="27" cy="27" r="3" fill="#607d8b"/>
+        </svg>` },
+      { id: 'fan_rgb', name: 'Cooler RGB Torre', color: '#00838f',
+        svg: `<svg viewBox="0 0 55 70" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="40" width="35" height="28" rx="3" fill="#0a2428" stroke="#00838f" stroke-width="1.5"/>
+          <rect x="15" y="5" width="25" height="40" rx="2" fill="#1a1a1a" stroke="#333" stroke-width="1"/>
+          <rect x="17" y="7" width="21" height="2" rx="1" fill="#00838f" opacity="0.6"/>
+          <rect x="17" y="12" width="21" height="2" rx="1" fill="#00838f" opacity="0.5"/>
+          <rect x="17" y="17" width="21" height="2" rx="1" fill="#00838f" opacity="0.4"/>
+          <rect x="17" y="22" width="21" height="2" rx="1" fill="#00bcd4" opacity="0.6"/>
+          <rect x="17" y="27" width="21" height="2" rx="1" fill="#00838f" opacity="0.4"/>
+          <rect x="17" y="32" width="21" height="2" rx="1" fill="#00838f" opacity="0.3"/>
+          <circle cx="27" cy="54" r="11" fill="#062429" stroke="#00838f" stroke-width="1"/>
+          <circle cx="27" cy="54" r="3" fill="#0a3340"/>
+          <path d="M27 43 Q31 49 27 51 Q23 49 27 43 Z" fill="#00838f" opacity="0.8"/>
+          <path d="M38 54 Q32 58 30 54 Q32 50 38 54 Z" fill="#00838f" opacity="0.8"/>
+          <path d="M27 65 Q23 59 27 57 Q31 59 27 65 Z" fill="#00838f" opacity="0.8"/>
+          <path d="M16 54 Q22 50 24 54 Q22 58 16 54 Z" fill="#00838f" opacity="0.8"/>
+          <rect x="14" y="39" width="4" height="4" rx="1" fill="#00bcd4" opacity="0.8"/>
+          <rect x="37" y="39" width="4" height="4" rx="1" fill="#00bcd4" opacity="0.8"/>
+        </svg>` },
+      { id: 'fan_aio', name: 'Cooler AIO 240mm', color: '#1b5e20',
+        svg: `<svg viewBox="0 0 70 55" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="64" height="20" rx="3" fill="#0d1f0d" stroke="#2e7d32" stroke-width="1.5"/>
+          <circle cx="20" cy="13" r="7" fill="#051005" stroke="#388e3c" stroke-width="1"/>
+          <path d="M20 6 Q24 10 20 11 Q16 10 20 6 Z" fill="#2e7d32" opacity="0.8"/>
+          <path d="M27 13 Q23 17 22 13 Q23 9 27 13 Z" fill="#2e7d32" opacity="0.8"/>
+          <path d="M20 20 Q16 16 20 15 Q24 16 20 20 Z" fill="#2e7d32" opacity="0.8"/>
+          <path d="M13 13 Q17 9 18 13 Q17 17 13 13 Z" fill="#2e7d32" opacity="0.8"/>
+          <circle cx="50" cy="13" r="7" fill="#051005" stroke="#388e3c" stroke-width="1"/>
+          <path d="M50 6 Q54 10 50 11 Q46 10 50 6 Z" fill="#2e7d32" opacity="0.8"/>
+          <path d="M57 13 Q53 17 52 13 Q53 9 57 13 Z" fill="#2e7d32" opacity="0.8"/>
+          <path d="M50 20 Q46 16 50 15 Q54 16 50 20 Z" fill="#2e7d32" opacity="0.8"/>
+          <path d="M43 13 Q47 9 48 13 Q47 17 43 13 Z" fill="#2e7d32" opacity="0.8"/>
+          <rect x="25" y="25" width="20" height="28" rx="3" fill="#0d1f0d" stroke="#2e7d32" stroke-width="1.5"/>
+          <rect x="27" y="27" width="16" height="24" rx="2" fill="#0a1a0a"/>
+          <rect x="29" y="29" width="12" height="6" rx="1" fill="#1b5e20" opacity="0.7"/>
+          <line x1="35" y1="24" x2="20" y2="22" stroke="#2e7d32" stroke-width="1.5"/>
+          <line x1="35" y1="24" x2="50" y2="22" stroke="#2e7d32" stroke-width="1.5"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'monitor',
+    label: '🖥️ Monitor',
+    icon: '🖥️',
+    external: true,
+    slot: { x: 0, y: 0, w: 100, h: 30, label: 'MONITOR', external: true },
+    components: [
+      { id: 'mon_full', name: 'Monitor FHD 24"', color: '#1a237e',
+        svg: `<svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="74" height="46" rx="4" fill="#0d1117" stroke="#37474f" stroke-width="2.5"/>
+          <rect x="6" y="6" width="68" height="40" rx="2" fill="#1a2744"/>
+          <rect x="6" y="6" width="68" height="40" rx="2" fill="url(#monGrad)"/>
+          <defs><linearGradient id="monGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1565c0" stop-opacity="0.4"/><stop offset="1" stop-color="#0d47a1" stop-opacity="0.2"/></linearGradient></defs>
+          <text x="40" y="29" text-anchor="middle" font-size="8" fill="#90caf9" font-family="Arial Black">24"</text>
+          <text x="40" y="38" text-anchor="middle" font-size="4" fill="#5c6bc0" font-family="Arial">FULL HD</text>
+          <rect x="35" y="49" width="10" height="5" rx="1" fill="#263238"/>
+          <rect x="25" y="54" width="30" height="4" rx="2" fill="#1c2a31"/>
+        </svg>` },
+      { id: 'mon_curvo', name: 'Monitor Curvo 27"', color: '#004d40',
+        svg: `<svg viewBox="0 0 85 60" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 10 Q42 3 83 10 L83 48 Q42 55 2 48 Z" fill="#0d1f1a" stroke="#00695c" stroke-width="2.5"/>
+          <path d="M5 12 Q42 6 80 12 L80 46 Q42 52 5 46 Z" fill="#00332a"/>
+          <defs><linearGradient id="curGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#004d40" stop-opacity="0.5"/><stop offset="1" stop-color="#00695c" stop-opacity="0.2"/></linearGradient></defs>
+          <path d="M5 12 Q42 6 80 12 L80 46 Q42 52 5 46 Z" fill="url(#curGrad)"/>
+          <text x="42" y="31" text-anchor="middle" font-size="8" fill="#80cbc4" font-family="Arial Black">27"</text>
+          <text x="42" y="40" text-anchor="middle" font-size="4" fill="#26a69a" font-family="Arial">CURVO QHD</text>
+          <rect x="37" y="49" width="10" height="5" rx="1" fill="#1b3330"/>
+          <rect x="28" y="54" width="28" height="4" rx="2" fill="#1b3330"/>
+        </svg>` },
+      { id: 'mon_gaming', name: 'Monitor Gaming 144Hz', color: '#b71c1c',
+        svg: `<svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="3" width="76" height="47" rx="5" fill="#0d0000" stroke="#c62828" stroke-width="2.5"/>
+          <rect x="5" y="6" width="70" height="41" rx="2" fill="#100010"/>
+          <rect x="2" y="3" width="76" height="2" rx="1" fill="#e53935" opacity="0.5"/>
+          <text x="40" y="28" text-anchor="middle" font-size="7" fill="#ef9a9a" font-family="Arial Black">27"</text>
+          <text x="40" y="36" text-anchor="middle" font-size="3.5" fill="#e53935" font-family="Arial">GAMING 144Hz 4K</text>
+          <rect x="2" y="48" width="76" height="2" rx="1" fill="#e53935" opacity="0.3"/>
+          <rect x="35" y="50" width="10" height="5" rx="1" fill="#1a0000"/>
+          <rect x="24" y="55" width="32" height="4" rx="2" fill="#1a0000"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'mouse',
+    label: '🖱️ Mouse',
+    icon: '🖱️',
+    external: true,
+    slot: { x: 0, y: 0, w: 100, h: 30, label: 'MOUSE', external: true },
+    components: [
+      { id: 'mouse_basic', name: 'Mouse de Oficina', color: '#455a64',
+        svg: `<svg viewBox="0 0 35 55" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 25 Q5 5 17 5 Q30 5 30 25 L30 40 Q30 53 17 53 Q5 53 5 40 Z" fill="#37474f" stroke="#607d8b" stroke-width="1.5"/>
+          <line x1="17" y1="5" x2="17" y2="28" stroke="#546e7a" stroke-width="1"/>
+          <rect x="13" y="10" width="8" height="3" rx="1.5" fill="#546e7a"/>
+          <circle cx="17" cy="27" r="4" fill="#263238" stroke="#455a64" stroke-width="0.5"/>
+          <circle cx="17" cy="27" r="2" fill="#37474f"/>
+        </svg>` },
+      { id: 'mouse_gamer', name: 'Mouse Gamer RGB', color: '#b71c1c',
+        svg: `<svg viewBox="0 0 40 55" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 28 Q4 5 20 5 Q36 5 36 28 L36 42 Q36 53 20 53 Q4 53 4 42 Z" fill="#1a0000" stroke="#e53935" stroke-width="1.5"/>
+          <line x1="20" y1="5" x2="20" y2="30" stroke="#e53935" stroke-width="1"/>
+          <path d="M4 36 Q4 53 20 53 Q36 53 36 36" fill="none" stroke="#e53935" stroke-width="1" opacity="0.5"/>
+          <rect x="15" y="10" width="10" height="4" rx="2" fill="#b71c1c"/>
+          <circle cx="20" cy="29" r="5" fill="#0d0000" stroke="#e53935" stroke-width="0.5"/>
+          <circle cx="20" cy="29" r="2.5" fill="#1a0000"/>
+          <rect x="5" y="38" width="8" height="3" rx="1" fill="#e53935" opacity="0.6"/>
+          <rect x="27" y="38" width="8" height="3" rx="1" fill="#e53935" opacity="0.6"/>
+        </svg>` },
+      { id: 'mouse_wireless', name: 'Mouse Inalámbrico', color: '#00695c',
+        svg: `<svg viewBox="0 0 35 52" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 25 Q4 5 17 5 Q31 5 31 25 L31 38 Q31 50 17 50 Q4 50 4 38 Z" fill="#004d40" stroke="#00897b" stroke-width="1.5"/>
+          <line x1="17" y1="5" x2="17" y2="26" stroke="#00897b" stroke-width="1"/>
+          <rect x="12" y="9" width="10" height="3" rx="1.5" fill="#00695c"/>
+          <circle cx="17" cy="25" r="4" fill="#00332a" stroke="#00897b" stroke-width="0.5"/>
+          <circle cx="17" cy="25" r="2" fill="#004d40"/>
+          <path d="M11 15 Q17 12 23 15" fill="none" stroke="#26a69a" stroke-width="0.8" opacity="0.7"/>
+          <path d="M9 12 Q17 8 25 12" fill="none" stroke="#26a69a" stroke-width="0.8" opacity="0.5"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'teclado',
+    label: '⌨️ Teclado',
+    icon: '⌨️',
+    external: true,
+    slot: { x: 0, y: 0, w: 100, h: 30, label: 'TECLADO', external: true },
+    components: [
+      { id: 'tec_basic', name: 'Teclado Membrana', color: '#37474f',
+        svg: `<svg viewBox="0 0 70 28" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="66" height="24" rx="4" fill="#263238" stroke="#546e7a" stroke-width="1.5"/>
+          <rect x="5" y="5" width="6" height="5" rx="1" fill="#37474f"/><rect x="13" y="5" width="6" height="5" rx="1" fill="#37474f"/><rect x="21" y="5" width="6" height="5" rx="1" fill="#37474f"/><rect x="29" y="5" width="6" height="5" rx="1" fill="#37474f"/><rect x="37" y="5" width="6" height="5" rx="1" fill="#37474f"/><rect x="45" y="5" width="6" height="5" rx="1" fill="#37474f"/><rect x="53" y="5" width="10" height="5" rx="1" fill="#37474f"/>
+          <rect x="5" y="12" width="8" height="5" rx="1" fill="#37474f"/><rect x="15" y="12" width="6" height="5" rx="1" fill="#37474f"/><rect x="23" y="12" width="6" height="5" rx="1" fill="#37474f"/><rect x="31" y="12" width="6" height="5" rx="1" fill="#37474f"/><rect x="39" y="12" width="6" height="5" rx="1" fill="#37474f"/><rect x="47" y="12" width="6" height="5" rx="1" fill="#37474f"/><rect x="55" y="12" width="8" height="5" rx="1" fill="#37474f"/>
+          <rect x="5" y="19" width="10" height="4" rx="1" fill="#455a64"/><rect x="17" y="19" width="34" height="4" rx="1" fill="#455a64"/><rect x="53" y="19" width="10" height="4" rx="1" fill="#455a64"/>
+        </svg>` },
+      { id: 'tec_mecanico', name: 'Teclado Mecánico RGB', color: '#1a237e',
+        svg: `<svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="66" height="26" rx="4" fill="#0d0d1a" stroke="#3f51b5" stroke-width="1.5"/>
+          <rect x="2" y="2" width="66" height="2" rx="2" fill="#3f51b5" opacity="0.4"/>
+          <rect x="5" y="5" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="13" y="5" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="21" y="5" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="29" y="5" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="37" y="5" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="45" y="5" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="53" y="5" width="10" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/>
+          <rect x="5" y="12" width="8" height="5" rx="1" fill="#1a1a2e" stroke="#5c6bc0" stroke-width="0.5"/><rect x="15" y="12" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#5c6bc0" stroke-width="0.5"/><rect x="23" y="12" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#5c6bc0" stroke-width="0.5"/><rect x="31" y="12" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#5c6bc0" stroke-width="0.5"/><rect x="39" y="12" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#5c6bc0" stroke-width="0.5"/><rect x="47" y="12" width="6" height="5" rx="1" fill="#1a1a2e" stroke="#5c6bc0" stroke-width="0.5"/><rect x="55" y="12" width="8" height="5" rx="1" fill="#1a1a2e" stroke="#5c6bc0" stroke-width="0.5"/>
+          <rect x="5" y="19" width="10" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="17" y="19" width="34" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/><rect x="53" y="19" width="10" height="5" rx="1" fill="#1a1a2e" stroke="#7986cb" stroke-width="0.5"/>
+          <rect x="2" y="26" width="66" height="2" rx="1" fill="#3f51b5" opacity="0.3"/>
+        </svg>` },
+      { id: 'tec_inalambrico', name: 'Teclado Inalámbrico', color: '#004d40',
+        svg: `<svg viewBox="0 0 65 26" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="61" height="22" rx="5" fill="#00332a" stroke="#00897b" stroke-width="1.5"/>
+          <rect x="4" y="4" width="5" height="4" rx="1" fill="#00695c"/><rect x="11" y="4" width="5" height="4" rx="1" fill="#00695c"/><rect x="18" y="4" width="5" height="4" rx="1" fill="#00695c"/><rect x="25" y="4" width="5" height="4" rx="1" fill="#00695c"/><rect x="32" y="4" width="5" height="4" rx="1" fill="#00695c"/><rect x="39" y="4" width="5" height="4" rx="1" fill="#00695c"/><rect x="46" y="4" width="5" height="4" rx="1" fill="#00695c"/><rect x="53" y="4" width="8" height="4" rx="1" fill="#00695c"/>
+          <rect x="4" y="10" width="7" height="4" rx="1" fill="#00695c"/><rect x="13" y="10" width="5" height="4" rx="1" fill="#00695c"/><rect x="20" y="10" width="5" height="4" rx="1" fill="#00695c"/><rect x="27" y="10" width="5" height="4" rx="1" fill="#00695c"/><rect x="34" y="10" width="5" height="4" rx="1" fill="#00695c"/><rect x="41" y="10" width="5" height="4" rx="1" fill="#00695c"/><rect x="48" y="10" width="7" height="4" rx="1" fill="#00695c"/>
+          <rect x="4" y="16" width="8" height="4" rx="1" fill="#00897b"/><rect x="14" y="16" width="30" height="4" rx="2" fill="#00897b"/><rect x="46" y="16" width="4" height="4" rx="1" fill="#00695c"/><rect x="52" y="16" width="4" height="4" rx="1" fill="#00695c"/><rect x="58" y="16" width="4" height="4" rx="1" fill="#00695c"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'webcam',
+    label: '📷 Webcam',
+    icon: '📷',
+    external: true,
+    slot: { x: 0, y: 0, w: 100, h: 30, label: 'WEBCAM', external: true },
+    components: [
+      { id: 'cam_hd', name: 'Webcam HD 720p', color: '#37474f',
+        svg: `<svg viewBox="0 0 50 35" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="40" height="22" rx="5" fill="#263238" stroke="#546e7a" stroke-width="1.5"/>
+          <circle cx="25" cy="16" r="7" fill="#1c2a31" stroke="#455a64" stroke-width="1"/>
+          <circle cx="25" cy="16" r="4.5" fill="#0d1117"/>
+          <circle cx="25" cy="16" r="3" fill="#1a2744"/>
+          <circle cx="23" cy="14" r="1" fill="white" opacity="0.5"/>
+          <rect x="3" y="25" width="44" height="8" rx="3" fill="#1c2a31" stroke="#37474f" stroke-width="1"/>
+          <rect x="20" y="29" width="10" height="2" rx="1" fill="#37474f"/>
+          <circle cx="40" cy="9" r="2" fill="#37474f"/>
+          <circle cx="40" cy="9" r="1" fill="#546e7a" opacity="0.5"/>
+        </svg>` },
+      { id: 'cam_4k', name: 'Webcam 4K Pro', color: '#1a237e',
+        svg: `<svg viewBox="0 0 55 38" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="3" width="45" height="26" rx="6" fill="#0d0d1a" stroke="#3f51b5" stroke-width="1.5"/>
+          <circle cx="27" cy="16" r="8" fill="#060612" stroke="#283593" stroke-width="1"/>
+          <circle cx="27" cy="16" r="6" fill="#0d0d1a"/>
+          <circle cx="27" cy="16" r="4" fill="#0a0a14"/>
+          <circle cx="25" cy="14" r="1.5" fill="white" opacity="0.4"/>
+          <rect x="5" y="3" width="45" height="2" rx="1" fill="#3f51b5" opacity="0.4"/>
+          <rect x="3" y="27" width="49" height="9" rx="3" fill="#0a0a14" stroke="#1a237e" stroke-width="1"/>
+          <rect x="21" y="31" width="14" height="2" rx="1" fill="#1a237e"/>
+          <rect x="38" y="7" width="7" height="4" rx="1" fill="#0d0d1a" stroke="#3f51b5" stroke-width="0.5"/>
+          <text x="41" y="11" text-anchor="middle" font-size="3" fill="#5c6bc0" font-family="Arial">4K</text>
+        </svg>` },
+      { id: 'cam_stream', name: 'Webcam Streaming', color: '#880e4f',
+        svg: `<svg viewBox="0 0 55 40" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="3" width="45" height="27" rx="6" fill="#1a001a" stroke="#e91e63" stroke-width="1.5"/>
+          <circle cx="27" cy="16" r="9" fill="#0d000d" stroke="#c2185b" stroke-width="1"/>
+          <circle cx="27" cy="16" r="6.5" fill="#0a000a"/>
+          <circle cx="27" cy="16" r="4" fill="#120012"/>
+          <circle cx="24" cy="13" r="1.5" fill="white" opacity="0.35"/>
+          <rect x="5" y="3" width="45" height="2" rx="1" fill="#e91e63" opacity="0.4"/>
+          <rect x="5" y="28" width="45" height="2" rx="1" fill="#e91e63" opacity="0.3"/>
+          <rect x="3" y="29" width="49" height="9" rx="3" fill="#0d000d" stroke="#880e4f" stroke-width="1"/>
+          <rect x="21" y="33" width="14" height="2" rx="1" fill="#880e4f"/>
+          <circle cx="42" cy="9" r="3" fill="#e91e63" opacity="0.7"/>
+          <circle cx="42" cy="9" r="1.5" fill="#f06292"/>
+        </svg>` }
+    ]
+  },
+  {
+    id: 'audio',
+    label: '🔊 Audio',
+    icon: '🔊',
+    external: true,
+    slot: { x: 0, y: 0, w: 100, h: 30, label: 'AUDIO', external: true },
+    components: [
+      { id: 'parlantes', name: 'Parlantes 2.1', color: '#4e342e',
+        svg: `<svg viewBox="0 0 65 40" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="5" width="16" height="30" rx="3" fill="#1a0f0a" stroke="#6d4c41" stroke-width="1.5"/>
+          <circle cx="11" cy="17" r="5" fill="#0d0805" stroke="#5d4037" stroke-width="1"/>
+          <circle cx="11" cy="17" r="2.5" fill="#1a0f0a"/>
+          <rect x="7" y="28" width="8" height="4" rx="2" fill="#5d4037"/>
+          <rect x="46" y="5" width="16" height="30" rx="3" fill="#1a0f0a" stroke="#6d4c41" stroke-width="1.5"/>
+          <circle cx="54" cy="17" r="5" fill="#0d0805" stroke="#5d4037" stroke-width="1"/>
+          <circle cx="54" cy="17" r="2.5" fill="#1a0f0a"/>
+          <rect x="50" y="28" width="8" height="4" rx="2" fill="#5d4037"/>
+          <rect x="22" y="12" width="21" height="22" rx="4" fill="#120c08" stroke="#5d4037" stroke-width="1.5"/>
+          <circle cx="32" cy="22" r="7" fill="#0d0805" stroke="#4e342e" stroke-width="1"/>
+          <circle cx="32" cy="22" r="4" fill="#120c08"/>
+          <circle cx="32" cy="22" r="2" fill="#1a0f0a"/>
+          <rect x="29" y="12" width="6" height="3" rx="1" fill="#5d4037"/>
+        </svg>` },
+      { id: 'auriculares', name: 'Auriculares Gaming', color: '#1b5e20',
+        svg: `<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 25 Q10 8 25 8 Q40 8 40 25" fill="none" stroke="#2e7d32" stroke-width="4" stroke-linecap="round"/>
+          <rect x="4" y="22" width="10" height="16" rx="4" fill="#1b5e20" stroke="#388e3c" stroke-width="1.5"/>
+          <circle cx="9" cy="30" r="4" fill="#0d2e0d" stroke="#4caf50" stroke-width="1"/>
+          <rect x="36" y="22" width="10" height="16" rx="4" fill="#1b5e20" stroke="#388e3c" stroke-width="1.5"/>
+          <circle cx="41" cy="30" r="4" fill="#0d2e0d" stroke="#4caf50" stroke-width="1"/>
+          <line x1="4" y1="30" x2="0" y2="45" stroke="#388e3c" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="0" cy="45" r="2" fill="#4caf50"/>
+        </svg>` },
+      { id: 'auriculares_bt', name: 'Auriculares Bluetooth', color: '#0d47a1',
+        svg: `<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 25 Q10 8 25 8 Q40 8 40 25" fill="none" stroke="#1565c0" stroke-width="4" stroke-linecap="round"/>
+          <rect x="4" y="22" width="10" height="16" rx="4" fill="#0d47a1" stroke="#1976d2" stroke-width="1.5"/>
+          <circle cx="9" cy="30" r="4" fill="#042d6b" stroke="#42a5f5" stroke-width="1"/>
+          <rect x="36" y="22" width="10" height="16" rx="4" fill="#0d47a1" stroke="#1976d2" stroke-width="1.5"/>
+          <circle cx="41" cy="30" r="4" fill="#042d6b" stroke="#42a5f5" stroke-width="1"/>
+          <path d="M23 38 L23 42 L27 40 L23 38" fill="#42a5f5"/>
+          <line x1="23" y1="38" x2="27" y2="42" stroke="#42a5f5" stroke-width="1"/>
+        </svg>` }
+    ]
+  }
+];
+
+const EXTERNAL_CATS = ['monitor','mouse','teclado','webcam','audio'];
+const TOTAL = CATEGORIES.length;
+let placed = {};
+let dragging = null;
+let gabineteSet = false;
+let gabineteType = null;
+
+function buildPanel() {
+  const panel = document.getElementById('components-panel');
+  panel.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const sec = document.createElement('div');
+    sec.className = 'category-section';
+    sec.id = 'cat-sec-' + cat.id;
+    const title = document.createElement('div');
+    title.className = 'cat-title';
+    title.id = 'cat-title-' + cat.id;
+    title.innerHTML = `<span class="cat-icon">${cat.icon}</span> ${cat.label}`;
+    sec.appendChild(title);
+    const grid = document.createElement('div');
+    grid.className = 'components-grid';
+    cat.components.forEach(comp => {
+      const card = document.createElement('div');
+      card.className = 'component-card';
+      card.id = 'card-' + comp.id;
+      card.draggable = true;
+      card.innerHTML = comp.svg + `<span>${comp.name}</span>`;
+      card.setAttribute('data-cat', cat.id);
+      card.setAttribute('data-comp', comp.id);
+      card.addEventListener('dragstart', onDragStart);
+      card.addEventListener('dragend', onDragEnd);
+      grid.appendChild(card);
+    });
+    sec.appendChild(grid);
+    panel.appendChild(sec);
+  });
+}
+
+function buildSlots() {
+  const canvas = document.getElementById('pc-canvas');
+  const canvasW = canvas.offsetWidth || 280;
+  const canvasH = canvas.offsetHeight || 480;
+  
+  CATEGORIES.forEach(cat => {
+    if (cat.external) return;
+    const s = cat.slot;
+    const el = document.createElement('div');
+    el.className = 'slot';
+    el.id = 'slot-' + cat.id;
+    const px = (s.x / 100) * canvasW;
+    const py = (s.y / 100) * canvasH;
+    const pw = (s.w / 100) * canvasW;
+    const ph = (s.h / 100) * canvasH;
+    el.style.cssText = `left:${px}px;top:${py}px;width:${pw}px;height:${ph}px;`;
+    el.innerHTML = `<span style="font-size:9px;opacity:0.6;">${s.label}</span>`;
+    el.setAttribute('data-cat', cat.id);
+    el.addEventListener('dragover', onDragOver);
+    el.addEventListener('drop', onDrop);
+    el.addEventListener('dragleave', onDragLeave);
+    canvas.appendChild(el);
+  });
+}
+
+function onDragStart(e) {
+  const cat = e.currentTarget.getAttribute('data-cat');
+  const comp = e.currentTarget.getAttribute('data-comp');
+  if (e.currentTarget.classList.contains('used')) { e.preventDefault(); return; }
+  if (cat !== 'gabinete' && !gabineteSet) {
+    setStatus('¡Primero colocá el gabinete!', '#e53935');
+    e.preventDefault();
+    return;
+  }
+  dragging = { cat, comp };
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  const slotCat = e.currentTarget.getAttribute('data-cat');
+  if (dragging && dragging.cat === slotCat && !e.currentTarget.classList.contains('filled')) {
+    e.currentTarget.classList.add('drop-target-active');
+    e.dataTransfer.dropEffect = 'move';
+  }
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drop-target-active');
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drop-target-active');
+  if (!dragging) return;
+  const slotCat = e.currentTarget.getAttribute('data-cat');
+  if (dragging.cat !== slotCat) {
+    setStatus('¡Ese componente no va ahí!', '#e53935');
+    return;
+  }
+  if (e.currentTarget.classList.contains('filled')) {
+    setStatus('¡Ya hay un componente ahí!', '#ff8f00');
+    return;
+  }
+  placeComponent(dragging.cat, dragging.comp, e.currentTarget);
+  dragging = null;
+}
+
+function placeComponent(catId, compId, slotEl) {
+  const cat = CATEGORIES.find(c => c.id === catId);
+  const comp = cat.components.find(c => c.id === compId);
+  
+  placed[catId] = compId;
+  
+  if (catId === 'gabinete') {
+    gabineteSet = true;
+    gabineteType = compId;
+    document.getElementById('no-gabinete-msg').style.display = 'none';
+    document.getElementById('pc-canvas').classList.add('has-gabinete');
+    applyGabineteStyle(compId);
+    showInternalSlots();
+  }
+  
+  slotEl.classList.add('filled');
+  slotEl.innerHTML = comp.svg;
+  
+  const card = document.getElementById('card-' + compId);
+  if (card) card.classList.add('used');
+  
+  const catTitle = document.getElementById('cat-title-' + catId);
+  if (catTitle) catTitle.classList.add('cat-done');
+  
+  const numPlaced = Object.keys(placed).length;
+  updateProgress(numPlaced);
+  
+  setStatus(getPlaceMessage(cat.label, comp.name), '#4cd97b');
+  
+  if (numPlaced === TOTAL) {
+    setTimeout(() => {
+      document.getElementById('completion-banner').classList.add('show');
+    }, 800);
+  }
+}
+
+function applyGabineteStyle(gabId) {
+  const canvas = document.getElementById('pc-canvas');
+  const colors = {
+    'gab_oficina': { border: '#90a4ae', bg: '#f5f7f8' },
+    'gab_gamer1': { border: '#e53935', bg: '#1a0000' },
+    'gab_gamer2': { border: '#7c4dff', bg: '#0d0020' }
+  };
+  const style = colors[gabId] || colors['gab_oficina'];
+  canvas.style.borderColor = style.border;
+  canvas.style.background = style.bg;
+}
+
+function showInternalSlots() {
+  CATEGORIES.forEach(cat => {
+    if (cat.external) {
+      handleExternalCategory(cat);
+    }
+  });
+}
+
+function handleExternalCategory(cat) {
+  const catSec = document.getElementById('cat-sec-' + cat.id);
+  if (catSec) {
+    const dropZone = document.createElement('div');
+    dropZone.id = 'ext-slot-' + cat.id;
+    dropZone.style.cssText = 'border:2px dashed #aab4ff;border-radius:10px;padding:10px;margin-top:6px;text-align:center;font-size:11px;color:#aab4ff;font-family:Nunito,sans-serif;transition:all 0.3s;';
+    dropZone.innerHTML = '📥 Arrastrá aquí el ' + cat.label;
+    dropZone.setAttribute('data-cat', cat.id);
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      if (dragging && dragging.cat === cat.id && !dropZone.classList.contains('filled')) {
+        dropZone.style.borderColor = '#7ef4ff';
+        dropZone.style.background = 'rgba(126,244,255,0.1)';
+      }
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = '#aab4ff';
+      dropZone.style.background = '';
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#aab4ff';
+      dropZone.style.background = '';
+      if (!dragging || dragging.cat !== cat.id) {
+        setStatus('¡Ese componente no va ahí!', '#e53935');
+        return;
+      }
+      if (dropZone.classList.contains('filled')) return;
+      const compObj = CATEGORIES.find(c=>c.id===cat.id).components.find(c=>c.id===dragging.comp);
+      placed[cat.id] = dragging.comp;
+      dropZone.classList.add('filled');
+      dropZone.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><div style="width:40px;height:40px;flex-shrink:0;">${compObj.svg}</div><div><div style="font-weight:700;font-size:12px;color:#4cd97b;">${compObj.name}</div><div style="font-size:10px;color:#aaa;">✅ Conectado</div></div></div>`;
+      dropZone.style.border = '2px solid #4cd97b';
+      const card = document.getElementById('card-' + dragging.comp);
+      if (card) card.classList.add('used');
+      const catTitle = document.getElementById('cat-title-' + cat.id);
+      if (catTitle) catTitle.classList.add('cat-done');
+      const numPlaced = Object.keys(placed).length;
+      updateProgress(numPlaced);
+      setStatus(getPlaceMessage(cat.label, compObj.name), '#4cd97b');
+      if (numPlaced === TOTAL) {
+        setTimeout(() => { document.getElementById('completion-banner').classList.add('show'); }, 800);
+      }
+      dragging = null;
+    });
+    catSec.appendChild(dropZone);
+  }
+}
+
+function getPlaceMessage(catLabel, compName) {
+  const msgs = [
+    `¡Genial! ${compName} colocado/a ✅`,
+    `¡Excelente! ${catLabel} instalado/a 🎉`,
+    `¡Muy bien! La PC toma forma 💪`,
+    `¡Perfecto! Seguí armando 🚀`,
+    `¡Eso es! ${compName} en su lugar ⚡`
+  ];
+  return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+function updateProgress(num) {
+  const pct = (num / TOTAL) * 100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `${num} / ${TOTAL} componentes`;
+}
+
+function setStatus(msg, color) {
+  const bar = document.getElementById('status-bar');
+  bar.textContent = msg;
+  bar.style.color = color || '#7ef4ff';
+}
+
+function restartGame() {
+  placed = {};
+  gabineteSet = false;
+  gabineteType = null;
+  dragging = null;
+  document.getElementById('completion-banner').classList.remove('show');
+  document.getElementById('pc-canvas').innerHTML = '<div class="needs-gabinete-msg" id="no-gabinete-msg"><span>📦</span> Primero colocá<br>el gabinete</div>';
+  document.getElementById('pc-canvas').style.cssText = '';
+  document.getElementById('pc-canvas').classList.remove('has-gabinete');
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('prog-label').textContent = '0 / ' + TOTAL + ' componentes';
+  setStatus('¡Empezá colocando el gabinete!', '#7ef4ff');
+  buildPanel();
+  setTimeout(buildSlots, 50);
+}
+
+buildPanel();
+setTimeout(buildSlots, 80);
+</script>
