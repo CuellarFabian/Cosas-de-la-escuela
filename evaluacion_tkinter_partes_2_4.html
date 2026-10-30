@@ -35,8 +35,8 @@
   .resumen .desglose { font-size:18px; color:var(--gris); margin-top:6px; }
   .item { border-top:1px solid #e2e8f0; padding:14px 0; }
   .item .resp { background:#edf2f7; border-radius:6px; padding:8px 12px; margin:6px 0; white-space:pre-wrap; font-size:16px; }
-  .item .modelo { display:none; background:#f0fff4; border-left:5px solid var(--ok); border-radius:6px; padding:8px 12px; margin:6px 0; font-size:16px; }
-  #resultado.ver .item .modelo { display:block; }
+  .item .modelo { background:#f0fff4; border-left:5px solid var(--ok); border-radius:6px; padding:8px 12px; margin:6px 0; font-size:16px; }
+  .porque { color:var(--gris); font-size:15px; margin-top:4px; }
   .vacio { color:#a0aec0; font-style:italic; }
   .bien { color:var(--ok); font-weight:bold; }
   .mal { color:var(--mal); font-weight:bold; }
@@ -182,6 +182,34 @@ const EXP = [
        'Crea un botón que se llama "Mi programa"'] }
 ];
 
+// Explicaciones breves que se muestran al entregar
+const POR_QUE_COMP = [
+  'import tkinter as tk trae la librería y le pone el apodo "tk", para poder escribir tk.Tk(), tk.Label(), tk.Button()...',
+  'Entry es la cajita de texto donde el usuario escribe.',
+  '.geometry() define el tamaño de la ventana: ancho x alto, en píxeles.',
+  'command conecta el botón con una función. Se escribe sin paréntesis: command=mi_funcion.'
+];
+const POR_QUE_SI = {
+  'El command tiene paréntesis: saludar()': 'Con paréntesis la función se ejecuta sola apenas abre el programa. Sin paréntesis (command=saludar) espera a que hagan clic.',
+  'Falta ventana.mainloop() al final': 'Sin mainloop() la ventana se abre y se cierra al instante. Esa línea la mantiene abierta, escuchando clics y teclas.',
+  'El Label no tiene .pack()': 'Sin .pack() el Label se crea pero no se ve. .pack() lo coloca dentro de la ventana.',
+  'El Entry no tiene .pack()': 'Sin .pack() el Entry se crea pero no se ve. .pack() lo coloca dentro de la ventana.',
+  'Falta el import tkinter as tk al principio': 'Sin el import, Python no sabe qué es "tk" y da error. Hay que traer la librería al principio.'
+};
+const POR_QUE_NO = {
+  'Falta ventana.mainloop() al final': 'Sí está: el programa termina con ventana.mainloop().',
+  'Falta el import tkinter as tk': 'Sí está: la primera línea es import tkinter as tk.',
+  'El Label no tiene .pack()': 'Sí lo tiene: el Label termina con .pack().',
+  'Falta crear la ventana con tk.Tk()': 'Sí está: la línea ventana = tk.Tk() crea la ventana.'
+};
+const POR_QUE_EXP = [
+  'En geometry("300x150") el primer número es el ancho y el segundo el alto, en píxeles.',
+  '.get() lee lo que el usuario escribió en un Entry. Lo guardamos en una variable para usarlo después.',
+  '.grid() ubica el elemento en una fila y una columna, como en una tabla. .pack(), en cambio, los apila uno debajo del otro.',
+  'Label muestra un texto fijo, y .pack() lo coloca dentro de la ventana.',
+  '.title() cambia el texto de la barra de arriba de la ventana.'
+];
+
 /* ============ UTILIDADES ============ */
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -291,7 +319,7 @@ document.getElementById('btnEntregar').addEventListener('click', () => {
     const resp = document.getElementById('comp' + i).value.trim();
     const ok = p.acept.includes(normalizar(resp));
     const max = PCT.comp / COMP.length;
-    return { titulo: p.pre + '___' + p.post, resp, ok, pts: ok ? max : 0, max, modelo: p.modelo };
+    return { titulo: p.pre + '___' + p.post, resp, ok, pts: ok ? max : 0, max, modelo: p.modelo, porque: POR_QUE_COMP[i] };
   });
 
   // Parte 3: cada error real marcado suma, cada marca equivocada resta (mínimo 0)
@@ -312,7 +340,7 @@ document.getElementById('btnEntregar').addEventListener('click', () => {
     const eligio = sel ? ordenExp[i][+sel.value] : null;
     const ok = !!(eligio && eligio.ok);
     const max = PCT.exp / EXP.length;
-    return { codigo: p.codigo, eligio, ok, pts: ok ? max : 0, max, modelo: p.o[0] };
+    return { codigo: p.codigo, eligio, ok, pts: ok ? max : 0, max, modelo: p.o[0], porque: POR_QUE_EXP[i] };
   });
 
   mostrarResultado(nombres, rComp, rErr, rExp);
@@ -324,6 +352,13 @@ document.getElementById('btnEntregar').addEventListener('click', () => {
 function suma(arr) { return arr.reduce((a, x) => a + x.pts, 0); }
 
 function marca(clase, simbolo) { return el('span', clase, simbolo + ' '); }
+
+function modeloEl(correcta, porque) {
+  const m = el('div', 'modelo');
+  m.appendChild(el('strong', '', correcta));
+  if (porque) m.appendChild(el('div', 'porque', porque));
+  return m;
+}
 
 function mostrarResultado(nombres, rComp, rErr, rExp) {
   const r = document.getElementById('resultado');
@@ -338,15 +373,10 @@ function mostrarResultado(nombres, rComp, rErr, rExp) {
   res.appendChild(el('div', 'desglose',
     'Parte 2: ' + fmt(t2) + ' / ' + PCT.comp + ' %  ·  Parte 3: ' + fmt(t3) + ' / ' + PCT.err +
     ' %  ·  Parte 4: ' + fmt(t4) + ' / ' + PCT.exp + ' %'));
-  res.appendChild(el('div', 'aviso', 'Este resultado vale hasta el ' + PCT_TOTAL + '% de la nota total y se complementa con la nota del trabajo anterior.'));
+  res.appendChild(el('div', 'aviso', 'Este resultado vale hasta el ' + PCT_TOTAL + '% de la nota total y se complementa con la nota del trabajo anterior. Más abajo está cada respuesta correcta, con su explicación.'));
   const imp = el('button', 'grande no-print', 'Imprimir / guardar PDF');
   imp.onclick = () => window.print();
-  const ver = el('button', 'grande sec no-print', 'Ver respuestas correctas');
-  ver.onclick = () => {
-    r.classList.toggle('ver');
-    ver.textContent = r.classList.contains('ver') ? 'Ocultar respuestas correctas' : 'Ver respuestas correctas';
-  };
-  res.appendChild(imp); res.appendChild(ver);
+  res.appendChild(imp);
   r.appendChild(res);
 
   // Parte 2
@@ -360,7 +390,7 @@ function mostrarResultado(nombres, rComp, rErr, rExp) {
     if (it.resp) linea.appendChild(document.createTextNode(it.resp));
     else linea.appendChild(el('span', 'vacio', '(sin responder)'));
     d.appendChild(linea);
-    d.appendChild(el('div', 'modelo', 'Respuesta correcta: ' + it.modelo));
+    d.appendChild(modeloEl('Respuesta correcta: ' + it.modelo, it.porque));
     b2.appendChild(d);
   });
   r.appendChild(b2);
@@ -379,6 +409,7 @@ function mostrarResultado(nombres, rComp, rErr, rExp) {
         const l = el('div');
         l.appendChild(marca(o.ok ? 'bien' : 'mal', o.ok ? '✔' : '✘'));
         l.appendChild(document.createTextNode(o.t));
+        if (!o.ok && POR_QUE_NO[o.t]) l.appendChild(el('div', 'porque', 'No es un error. ' + POR_QUE_NO[o.t]));
         linea.appendChild(l);
       });
     }
@@ -386,7 +417,15 @@ function mostrarResultado(nombres, rComp, rErr, rExp) {
     const estado = it.frac === 1 ? 'Completo' : it.frac > 0 ? 'Parcial' : 'Sin puntos';
     d.appendChild(el('div', it.frac === 1 ? 'bien' : it.frac > 0 ? 'parcial' : 'mal',
       estado + ' — ' + fmt(it.pts) + ' / ' + fmt(it.max) + ' %'));
-    d.appendChild(el('div', 'modelo', 'Errores del programa: ' + it.reales.map(o => o.t).join(' — ')));
+    const m = el('div', 'modelo');
+    m.appendChild(el('strong', '', it.reales.length === 1 ? 'El error de este programa:' : 'Los errores de este programa:'));
+    it.reales.forEach(o => {
+      const l = el('div', 'porque');
+      l.appendChild(el('b', '', o.t + '. '));
+      l.appendChild(document.createTextNode(POR_QUE_SI[o.t]));
+      m.appendChild(l);
+    });
+    d.appendChild(m);
     b3.appendChild(d);
   });
   r.appendChild(b3);
@@ -402,7 +441,7 @@ function mostrarResultado(nombres, rComp, rErr, rExp) {
     if (it.eligio) linea.appendChild(document.createTextNode(it.eligio.t));
     else linea.appendChild(el('span', 'vacio', '(sin responder)'));
     d.appendChild(linea);
-    d.appendChild(el('div', 'modelo', 'Respuesta correcta: ' + it.modelo));
+    d.appendChild(modeloEl('Respuesta correcta: ' + it.modelo, it.porque));
     b4.appendChild(d);
   });
   r.appendChild(b4);
