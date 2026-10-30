@@ -37,6 +37,11 @@
   .item .resp { background:#edf2f7; border-radius:6px; padding:8px 12px; margin:6px 0; white-space:pre-wrap; font-size:16px; }
   .item .modelo { background:#f0fff4; border-left:5px solid var(--ok); border-radius:6px; padding:8px 12px; margin:6px 0; font-size:16px; }
   .porque { color:var(--gris); font-size:15px; margin-top:4px; }
+  #resultado:not(.ver) .item .modelo, #resultado:not(.ver) .resp .porque { display:none; }
+  .clave-box { display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap; margin:12px 0 4px; }
+  .clave-box input { width:220px; max-width:100%; font-size:17px; padding:8px 10px; border:2px solid #cbd5e0; border-radius:8px; }
+  .clave-box input:focus { outline:none; border-color:var(--morado); }
+  .clave-msg { min-height:22px; font-size:15px; color:var(--mal); }
   .vacio { color:#a0aec0; font-style:italic; }
   .bien { color:var(--ok); font-weight:bold; }
   .mal { color:var(--mal); font-weight:bold; }
@@ -210,6 +215,16 @@ const POR_QUE_EXP = [
   '.title() cambia el texto de la barra de arriba de la ventana.'
 ];
 
+// Clave del profe para mostrar las respuestas correctas.
+// Se guarda como un número y no como texto. No distingue mayúsculas, tildes, espacios ni signos.
+const CLAVE_HASH = 1472154078;
+function hashClave(s) {
+  s = s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
 /* ============ UTILIDADES ============ */
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -363,6 +378,7 @@ function modeloEl(correcta, porque) {
 function mostrarResultado(nombres, rComp, rErr, rExp) {
   const r = document.getElementById('resultado');
   r.innerHTML = '';
+  r.classList.remove('ver');
   const t2 = suma(rComp), t3 = suma(rErr), t4 = suma(rExp);
   const total = t2 + t3 + t4;
 
@@ -373,9 +389,30 @@ function mostrarResultado(nombres, rComp, rErr, rExp) {
   res.appendChild(el('div', 'desglose',
     'Parte 2: ' + fmt(t2) + ' / ' + PCT.comp + ' %  ·  Parte 3: ' + fmt(t3) + ' / ' + PCT.err +
     ' %  ·  Parte 4: ' + fmt(t4) + ' / ' + PCT.exp + ' %'));
-  res.appendChild(el('div', 'aviso', 'Este resultado vale hasta el ' + PCT_TOTAL + '% de la nota total y se complementa con la nota del trabajo anterior. Más abajo está cada respuesta correcta, con su explicación.'));
+  res.appendChild(el('div', 'aviso', 'Este resultado vale hasta el ' + PCT_TOTAL + '% de la nota total y se complementa con la nota del trabajo anterior.'));
   const imp = el('button', 'grande no-print', 'Imprimir / guardar PDF');
   imp.onclick = () => window.print();
+  const info = el('div', 'aviso', 'Las respuestas correctas y sus explicaciones se muestran cuando el profe ingresa la clave.');
+  const caja = el('div', 'clave-box no-print');
+  const entrada = document.createElement('input');
+  entrada.type = 'password'; entrada.id = 'clave'; entrada.placeholder = 'Clave del profe';
+  entrada.autocomplete = 'off';
+  const btnClave = el('button', 'grande sec', 'Mostrar respuestas');
+  const msg = el('div', 'clave-msg');
+  const abrir = () => {
+    if (hashClave(entrada.value) === CLAVE_HASH) {
+      r.classList.add('ver');
+      caja.remove(); msg.remove();
+      info.textContent = 'Respuestas correctas desbloqueadas: están debajo de cada pregunta.';
+    } else {
+      msg.textContent = 'Clave incorrecta.';
+      entrada.select();
+    }
+  };
+  btnClave.onclick = abrir;
+  entrada.addEventListener('keydown', e => { if (e.key === 'Enter') abrir(); });
+  caja.appendChild(entrada); caja.appendChild(btnClave);
+  res.appendChild(info); res.appendChild(caja); res.appendChild(msg);
   res.appendChild(imp);
   r.appendChild(res);
 
