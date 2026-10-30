@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cosas de la escuela</title>
+<style>
+  :root { --morado:#6b46c1; --morado-oscuro:#553197; --morado-claro:#f3edfd; --amarillo:#f6ad37; --gris:#4a5568; --fondo:#f7fafc; --texto:#1a202c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Segoe UI',Arial,sans-serif; background:var(--fondo); color:var(--texto); }
+  header { background:var(--morado); color:#fff; padding:36px 20px 40px; }
+  .ancho { max-width:900px; margin:0 auto; padding-left:max(0px, env(safe-area-inset-left, 0px)); padding-right:max(0px, env(safe-area-inset-right, 0px)); }
+  header h1 { margin:0 0 8px; font-size:clamp(28px, 6vw, 42px); }
+  header p { margin:0; font-size:18px; opacity:.92; max-width:60ch; }
+  main { padding:28px 20px 40px; }
+  h2 { color:var(--morado); font-size:22px; margin:0 0 16px; }
+  .grilla { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:18px; }
+  .tarjeta { background:#fff; border-radius:12px; padding:20px 22px; box-shadow:0 2px 8px rgba(0,0,0,.07); display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .etiqueta { align-self:flex-start; background:var(--amarillo); color:#5c3c00; font-weight:bold; font-size:13px; padding:3px 12px; border-radius:20px; }
+  .tarjeta h3 { margin:0; font-size:20px; }
+  .tarjeta p { margin:0; color:var(--gris); font-size:16px; line-height:1.45; flex:1; }
+  .boton { align-self:flex-start; background:var(--morado); color:#fff; text-decoration:none; font-size:16px; padding:10px 22px; border-radius:10px; }
+  .boton:hover, .boton:focus-visible { background:var(--morado-oscuro); }
+  .boton:focus-visible { outline:3px solid var(--amarillo); outline-offset:2px; }
+  footer { padding:0 20px 36px; color:var(--gris); font-size:14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="ancho">
+    <h1>Cosas de la escuela</h1>
+    <p>Actividades y evaluaciones en HTML para las clases de Tecnología y Robótica.</p>
+  </div>
+</header>
+
+<main>
+  <div class="ancho">
+    <h2>Actividades</h2>
+    <div class="grilla">
+
+      <article class="tarjeta">
+        <span class="etiqueta">Computación</span>
+        <h3>Armá tu computadora</h3>
+        <p>Juego para arrastrar cada componente a su lugar y aprender las partes de una computadora.</p>
+        <a class="boton" href="armar_computadora_game.html">Abrir actividad</a>
+      </article>
+
+      <article class="tarjeta">
+        <span class="etiqueta">6.º grado · Python</span>
+        <h3>Evaluación de tkinter</h3>
+        <p>Partes 2, 3 y 4: completar código, encontrar errores y elegir qué hace cada línea. Se corrige sola y vale hasta el 50% de la nota total.</p>
+        <a class="boton" href="evaluacion_tkinter_partes_2_4.html">Abrir evaluación</a>
+      </article>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="ancho">Prof. Fabián Cuellar · Escuela del Viento, Río Gallegos</div>
+</footer>
+
+</body>
+</html>
